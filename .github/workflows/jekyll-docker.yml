@@ -1,20 +1,264 @@
-name: Jekyll site CI
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โรงเรียนจินดาพร สืบสานประเพณีไทย</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;700&family=Knewave&display=swap" rel="stylesheet">
+    <style>
+        /* ------------------------------------- */
+        /* 1. BASE STYLES (Full Viewport / No Scroll) */
+        /* ------------------------------------- */
+        body {
+            font-family: 'Mali', cursive;
+            background-color: #ffe0f0; 
+            color: #4a148c; 
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            background-image: linear-gradient(to top, #ffe0f0 0%, #e0f2f7 50%, #ffe0f0 100%);
+            overflow: hidden; 
+        }
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+        .container {
+            width: 100%; 
+            height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between; 
+            padding-top: 2vh; 
+            padding-bottom: 0;
+        }
+        
+        /* ... (Header and Krathong Maker Styles - คงเดิม) ... */
+        header { width: 90%; max-width: 900px; }
+        header h1 { color: #ff69b4; text-shadow: 3px 3px #fff, 1px 1px #87ceeb; font-size: 3.8em; margin-bottom: 5px; font-family: 'Knewave', cursive; -webkit-text-stroke: 1px #ff1493; }
+        header .school-name { color: #9c27b0; font-size: 1.8em; font-weight: bold; display: block; text-shadow: 1px 1px #fff; }
+        header p { color: #6a1b9a; font-size: 1.2em; }
 
-jobs:
-  build:
+        .krathong-maker { width: 90%; max-width: 450px; background-color: #fff; padding: 2vh 30px; border-radius: 25px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); border: 5px dashed #ffc0cb; position: relative; overflow: hidden; flex-shrink: 0; }
+        .krathong-maker h2 { color: #d81b60; font-size: 2em; font-family: 'Knewave', cursive; -webkit-text-stroke: 1px #ffb6c1; }
+        .krathong-maker input, .krathong-maker select { padding: 10px; border-radius: 15px; border: 2px solid #ab47bc; background-color: #f3e5f5; color: #333; width: 100%; box-sizing: border-box; margin-bottom: 15px; font-family: 'Mali', cursive; font-size: 1.1em; }
+        .krathong-maker button { background-color: #ff80ab; color: white; padding: 15px 35px; border-radius: 30px; box-shadow: 0 5px #ff1493; font-weight: bold; font-size: 1.3em; transition: all 0.1s; border: none; cursor: pointer; }
+        .krathong-maker button:active { box-shadow: 0 2px #ff1493; transform: translateY(3px); }
 
-    runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build the site in the jekyll/builder container
-      run: |
-        docker run \
-        -v ${{ github.workspace }}:/srv/jekyll -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
-        jekyll/builder:latest /bin/bash -c "chmod -R 777 /srv/jekyll && jekyll build --future"
+        /* River Area (Uses remaining space) */
+        .river-area {
+            position: relative;
+            width: 100vw; 
+            flex-grow: 1;
+            min-height: 25vh; 
+            overflow: hidden;
+            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);
+            background-color: #87ceeb; 
+            background-image: linear-gradient(to bottom, #87ceeb 0%, #4682b4 100%);
+            border-top: 5px solid #aaddff; 
+        }
+
+        /* ------------------------------------- */
+        /* 3. NEW WAVE ANIMATION STYLES */
+        /* ------------------------------------- */
+        .wave {
+            position: absolute;
+            bottom: 0; /* ติดอยู่ก้นแม่น้ำ */
+            left: 0;
+            width: 200%; /* กว้าง 200% เพื่อให้มีพื้นที่เลื่อนคลื่น */
+            height: 100px;
+            background-repeat: repeat-x;
+            background-size: 1000px 100px; /* ขนาดของรูปคลื่น */
+            animation-duration: 40s;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        /* รูปแบบคลื่น (ใช้ gradient แทนภาพ) */
+        .wave1 {
+            background-image: radial-gradient(circle at 50% -20px, rgba(255, 255, 255, 0.1) 20px, transparent 20px);
+            animation-name: waveMovement;
+            opacity: 0.5;
+            z-index: 10;
+        }
+
+        .wave2 {
+            background-image: radial-gradient(circle at 50% -20px, rgba(255, 255, 255, 0.2) 25px, transparent 25px);
+            animation-name: waveMovement2;
+            animation-duration: 25s; /* เร็วขึ้นเล็กน้อย */
+            opacity: 0.4;
+            z-index: 11;
+        }
+
+        .wave3 {
+            background-image: radial-gradient(circle at 50% -20px, rgba(255, 255, 255, 0.3) 30px, transparent 30px);
+            animation-name: waveMovement;
+            animation-duration: 35s; 
+            opacity: 0.3;
+            z-index: 12;
+        }
+        
+        /* แอนิเมชันการเคลื่อนที่ของคลื่น */
+        @keyframes waveMovement {
+            0% { background-position-x: 0; }
+            100% { background-position-x: 1000px; } /* เลื่อนคลื่นไปทางขวา */
+        }
+
+        @keyframes waveMovement2 {
+            0% { background-position-x: 0; }
+            100% { background-position-x: -1000px; } /* เลื่อนคลื่นไปทางซ้าย (ทิศทางตรงกันข้าม) */
+        }
+        
+        /* ... (Krathong Display Styles and Media Queries - คงเดิม) ... */
+        .krathong-display { position: absolute; bottom: -20px; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 20; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 0 5px rgba(255,255,255,0.7) inset; transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55); width: 90px; height: 90px; }
+        .krathong-display.lotus { background-color: #ffb6c1; border: 3px solid #ff69b4; }
+        .krathong-display.duck { background-color: #fffacd; border: 3px solid #ffd700; }
+        .krathong-display.bear { background-color: #c39bd3; border: 3px solid #8e44ad; }
+        .krathong-display::before { position: absolute; top: -15px; font-size: 2em; z-index: 30; animation: floatUpDown 2s infinite ease-in-out alternate;}
+        .krathong-display.lotus::before { content: '🌸'; } 
+        .krathong-display.duck::before { content: '🐥'; } 
+        .krathong-display.bear::before { content: '🐻'; } 
+        .krathong-display .message { color: #333; font-weight: bold; font-family: 'Mali', cursive; text-shadow: 1px 1px #fff; padding: 0 5px; font-size: 12px;}
+
+        @keyframes krathongFloat { 0% { transform: translateX(0) translateY(0) rotate(0deg); opacity: 1; } 50% { transform: translateX(50vw) translateY(10px) rotate(5deg); opacity: 0.9; } 100% { transform: translateX(100vw) translateY(0px) rotate(0deg); opacity: 0; } }
+        @keyframes floatUpDown { 0% { transform: translateY(0px); } 100% { transform: translateY(-5px); } }
+        @keyframes waterSparkle { 0% { background-position: 0% 0%, 50% 0%, 100% 0%; } 100% { background-position: 100% 100%, 0% 100%, 50% 100%; } }
+        @media (max-height: 600px), (max-width: 768px) { header h1 { font-size: 2.2em; } header .school-name { font-size: 1.2em; } .krathong-maker { padding: 1vh 20px; } .krathong-maker h2 { font-size: 1.4em; } .krathong-maker button { padding: 8px 15px; font-size: 1em; } .krathong-display { width: 60px; height: 60px; } .krathong-display::before { font-size: 1.2em; top: -8px; } @keyframes krathongFloat { 50% { transform: translateX(50vw) translateY(5px) rotate(3deg); opacity: 0.9; } 100% { transform: translateX(100vw) translateY(0px) rotate(0deg); opacity: 0; } } }
+        @media (max-width: 480px) { header h1 { font-size: 2em; -webkit-text-stroke: 0.5px #ff1493; } header .school-name { font-size: 1.1em; } }
+    </style>
+</head>
+<body>
+    <audio id="bgm" loop>
+        <source src="loykrathong.mp3" type="audio/mpeg">
+    </audio>
+    
+    <div class="container">
+        <header>
+            <h1>ลอยกระทงออนไลน์</h1>
+            <span class="school-name">"สืบสานประเพณี  ลอยกระทงวิถีใหม่ จากใบตองสู่เทคโนโลยี"</span>
+           <span class="school-name">โรงเรียนจินดาพร ประจำปี 2568</span>
+           <p>มาสร้างกระทงสัตว์น้อย แล้วลอยให้สนุกกันนะ</p>
+        </header>
+
+        <main class="krathong-maker">
+            <h2>สร้างกระทงน่ารักของหนู</h2>
+            <form id="loyKrathongForm">
+                <label for="krathongName">เขียนความในใจ (สั้นๆ ไม่เกิน 15 ตัวอักษร):</label>
+                <input type="text" id="krathongName" placeholder="ขอให้หนูเรียนหนังสือเก่ง ๆ" maxlength="15" required>
+                
+                <label for="krathongType">เลือกเพื่อนสัตว์มาลอยกระทง:</label>
+                <select id="krathongType">
+                    <option value="lotus">🌸 กระต่ายน้อย (ชมพู)</option>
+                    <option value="duck">🐥 เป็ดน้อย (เหลือง)</option>
+                    <option value="bear">🐻 หมีน้อย (ม่วง)</option>
+                </select>
+                
+                <button type="submit">ลอยกระทงกันเลย</button>
+            </form>
+        </main>
+        
+        <section class="river-area">
+            <div class="water" id="waterArea">
+                <div class="wave wave1"></div>
+                <div class="wave wave2"></div>
+                <div class="wave wave3"></div>
+            </div>
+        </section>
+        
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('loyKrathongForm');
+            const waterArea = document.getElementById('waterArea');
+            const bgm = document.getElementById('bgm');
+            let isPlaying = false;
+            
+            // 🎶 ฟังก์ชันสำหรับพยายามเล่นเพลง (เมื่อมีการแตะ/คลิกครั้งแรก)
+            function togglePlay() {
+                if (!isPlaying) {
+                    bgm.play().then(() => {
+                        isPlaying = true;
+                        console.log("Music started playing.");
+                    }).catch(error => {
+                        console.log("Autoplay blocked. Waiting for user interaction.");
+                    });
+                }
+            }
+
+            document.addEventListener('click', togglePlay, { once: true });
+            document.addEventListener('touchstart', togglePlay, { once: true });
+
+            // ฟังก์ชันสำหรับสร้างและลอยกระทง
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); 
+                
+                const krathongName = document.getElementById('krathongName').value.trim();
+                const krathongType = document.getElementById('krathongType').value;
+                
+                if (krathongName === "") {
+                    alert("หนูต้องเขียนอะไรซักหน่อยก่อนลอยกระทงนะจ๊ะ!");
+                    return;
+                }
+
+                const newKrathong = document.createElement('div');
+                newKrathong.classList.add('krathong-display', krathongType);
+                
+                const riverAreaWidth = waterArea.clientWidth;
+                const randomStartPosition = Math.random() * (riverAreaWidth * 0.1); 
+                
+                const floatSpeed = 10 + Math.random() * 8; 
+                const floatDelay = Math.random() * 1; 
+
+                newKrathong.style.left = `${randomStartPosition}px`;
+                
+                const messageSpan = document.createElement('span');
+                messageSpan.classList.add('message');
+                messageSpan.textContent = krathongName.substring(0, 15); 
+                newKrathong.appendChild(messageSpan);
+                
+                waterArea.appendChild(newKrathong);
+                
+                setTimeout(() => {
+                    newKrathong.style.transform = 'translateY(0)'; 
+                }, 10); 
+                
+                setTimeout(() => {
+                    newKrathong.classList.add('floating'); 
+                    newKrathong.style.animation = `krathongFloat ${floatSpeed}s linear ${floatDelay}s forwards`;
+                }, 850); 
+
+                document.getElementById('krathongName').value = '';
+                
+                newKrathong.addEventListener('animationend', () => {
+                    newKrathong.remove();
+                });
+            });
+
+            // เพิ่มกระทงตัวอย่างเริ่มต้น
+            function addInitialKrathong(type, text, leftPosition, delay) {
+                const initialKrathong = document.createElement('div');
+                initialKrathong.classList.add('krathong-display', type, 'floating'); 
+                
+                const floatSpeed = 12 + Math.random() * 6; 
+                initialKrathong.style.left = `${leftPosition}px`;
+                initialKrathong.style.animation = `krathongFloat ${floatSpeed}s linear ${delay}s infinite`;
+                initialKrathong.style.transform = 'translateY(0)'; 
+
+                const messageSpan = document.createElement('span');
+                messageSpan.classList.add('message');
+                messageSpan.textContent = text;
+                initialKrathong.appendChild(messageSpan);
+                
+                waterArea.appendChild(initialKrathong);
+            }
+
+            addInitialKrathong('lotus', 'หนูอยากเป็นหมอ!', 50, 0);
+            addInitialKrathong('duck', 'โตไปเป็นคนดี', 200, 3);
+            addInitialKrathong('bear', 'เพื่อนกันตลอดไป', 450, 6);
+        });
+    </script>
+</body>
+</html>
